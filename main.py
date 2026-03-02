@@ -1,6 +1,90 @@
 import tkinter as tk
 from tkinter import messagebox
+import pandas as pd
 
+from Productos import validar_producto
+from excel import guardar_excel
+
+
+
+
+tabla_inventario = pd.DataFrame(columns=[
+   "Codigo",
+   "Producto",
+   "Animal",
+   "Categoria",
+   "Stock",
+   "Precio"
+])
+
+
+
+
+def agregar_producto():
+
+
+   global tabla_inventario
+
+
+   codigo_producto = entrada_codigo.get()
+   nombre_producto = entrada_producto.get()
+   animal_producto = entrada_animal.get()
+   categoria_producto = entrada_categoria.get()
+
+
+   try:
+       stock_producto = int(entrada_stock.get())
+       precio_producto = float(entrada_precio.get())
+   except:
+       messagebox.showerror("Error", "Stock o precio incorrectos")
+       return
+
+
+   nuevo_producto = {
+       "Codigo": codigo_producto,
+       "Producto": nombre_producto,
+       "Animal": animal_producto,
+       "Categoria": categoria_producto,
+       "Stock": stock_producto,
+       "Precio": precio_producto
+   }
+
+
+   tabla_inventario = pd.concat(
+       [tabla_inventario, pd.DataFrame([nuevo_producto])],
+       ignore_index=True
+   )
+
+
+   errores = validar_producto(tabla_inventario)
+
+
+   if errores:
+       messagebox.showwarning(
+           "Error",
+           "\n".join(errores)
+       )
+   else:
+       messagebox.showinfo("Correcto", "Producto añadido correctamente")
+
+
+   limpiar_campos()
+
+
+
+
+def guardar_inventario():
+   guardar_excel(tabla_inventario)
+   messagebox.showinfo("Guardado", "Excel creado correctamente")
+
+
+def limpiar_campos():
+   entrada_codigo.delete(0, tk.END)
+   entrada_producto.delete(0, tk.END)
+   entrada_animal.delete(0, tk.END)
+   entrada_categoria.delete(0, tk.END)
+   entrada_stock.delete(0, tk.END)
+   entrada_precio.delete(0, tk.END)
 
 #Tkinter
 ventana = tk.Tk()
@@ -33,3 +117,20 @@ entrada_precio.pack()
 
 
 ventana.mainloop()
+tk.Button(
+   ventana,
+   text="Añadir producto",
+   command=agregar_producto
+).pack(pady=5)
+
+
+tk.Button(
+   ventana,
+   text="Guardar en Excel",
+   command=guardar_inventario
+).pack(pady=5
+      )
+
+
+ventana.mainloop()
+

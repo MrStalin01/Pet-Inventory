@@ -115,8 +115,6 @@ tk.Label(ventana, text="Precio").pack()
 entrada_precio = tk.Entry(ventana)
 entrada_precio.pack()
 
-
-ventana.mainloop()
 tk.Button(
    ventana,
    text="Añadir producto",

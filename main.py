@@ -1,134 +1,110 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import pandas as pd
+import os
 
 from Productos import validar_producto
-from excel import guardar_excel
+from excel import guardar_excel, cargar_excel, COLUMNAS, ARCHIVO_EXCEL
+
+tabla_inventario = cargar_excel()
+guardar_excel(tabla_inventario)
 
 
 
+def abrir_menu():
+    ventana = tk.Tk()
+    ventana.title("Inventario PetMatch - Menú")
+    ventana.geometry("300x250")
+    ventana.resizable(False, False)
 
-tabla_inventario = pd.DataFrame(columns=[
-   "Codigo",
-   "Producto",
-   "Animal",
-   "Categoria",
-   "Stock",
-   "Precio"
-])
+    tk.Label(ventana, text="Inventario PetMatch", font=("Arial", 16, "bold")).pack(pady=20)
 
+    tk.Button(
+        ventana, text="Agregar Producto",
+        command=lambda: [ventana.destroy(), abrir_agregar()]
+    ).pack(pady=5)
 
+    tk.Button(
+        ventana, text="Eliminar Producto",
+        command=lambda: [ventana.destroy(), abrir_eliminar()]
+    ).pack(pady=5)
 
+    tk.Button(
+        ventana, text="Ver / Editar Inventario",
+        command=lambda: [ventana.destroy(), abrir_inventario()]
+    ).pack(pady=5)
 
-def agregar_producto():
-
-
-   global tabla_inventario
-
-
-   codigo_producto = entrada_codigo.get()
-   nombre_producto = entrada_producto.get()
-   animal_producto = entrada_animal.get()
-   categoria_producto = entrada_categoria.get()
-
-
-   try:
-       stock_producto = int(entrada_stock.get())
-       precio_producto = float(entrada_precio.get())
-   except:
-       messagebox.showerror("Error", "Stock o precio incorrectos")
-       return
+    ventana.mainloop()
 
 
-   nuevo_producto = {
-       "Codigo": codigo_producto,
-       "Producto": nombre_producto,
-       "Animal": animal_producto,
-       "Categoria": categoria_producto,
-       "Stock": stock_producto,
-       "Precio": precio_producto
-   }
+def abrir_agregar():
+    global tabla_inventario
+
+    ventana = tk.Tk()
+    ventana.title("Agregar Producto")
+    ventana.geometry("350x380")
+    ventana.resizable(False, False)
+
+    tk.Label(ventana, text="Agregar Producto", font=("Arial", 13, "bold")).pack(pady=8)
+
+    entradas = {}
+    for campo in COLUMNAS:
+        tk.Label(ventana, text=campo).pack()
+        entry = tk.Entry(ventana, width=28)
+        entry.pack(pady=1)
+        entradas[campo] = entry
+
+    def confirmar():
+        global tabla_inventario
+
+        codigo    = entradas["Codigo"].get().strip()
+        producto  = entradas["Producto"].get().strip()
+        animal    = entradas["Animal"].get().strip()
+        categoria = entradas["Categoria"].get().strip()
+
+        try:
+            stock  = int(entradas["Stock"].get())
+            precio = float(entradas["Precio"].get())
+        except ValueError:
+            messagebox.showerror("Error", "Stock debe ser entero y Precio decimal", parent=ventana)
+            return
+
+        nuevo = {
+            "Codigo": codigo, "Producto": producto,
+            "Animal": animal, "Categoria": categoria,
+            "Stock": stock,   "Precio": precio
+        }
+
+        tabla_inventario = pd.concat(
+            [tabla_inventario, pd.DataFrame([nuevo])],
+            ignore_index=True
+        )
+
+        errores = validar_producto(tabla_inventario)
+        if errores:
+            tabla_inventario = tabla_inventario.iloc[:-1].reset_index(drop=True)
+            messagebox.showwarning("Error de validación", "\n".join(errores), parent=ventana)
+        else:
+            guardar_excel(tabla_inventario)  # ← guarda automáticamente
+            messagebox.showinfo("Correcto", f"'{producto}' añadido y guardado en Excel", parent=ventana)
+            for e in entradas.values():
+                e.delete(0, tk.END)
+
+    frame_botones = tk.Frame(ventana)
+    frame_botones.pack(pady=10)
+
+    tk.Button(frame_botones, text="Añadir",
+              command=confirmar).pack(side="left", padx=5)
+    tk.Button(frame_botones, text="Menú", width=12,
+              command=lambda: [ventana.destroy(), abrir_menu()]).pack(side="left", padx=5)
+
+    ventana.mainloop()
 
 
-   tabla_inventario = pd.concat(
-       [tabla_inventario, pd.DataFrame([nuevo_producto])],
-       ignore_index=True
-   )
+    def abrir_eliminar():
+        pass
+    def abrir_inventario():
+        pass
 
-
-   errores = validar_producto(tabla_inventario)
-
-
-   if errores:
-       messagebox.showwarning(
-           "Error",
-           "\n".join(errores)
-       )
-   else:
-       messagebox.showinfo("Correcto", "Producto añadido correctamente")
-
-
-   limpiar_campos()
-
-
-
-
-def guardar_inventario():
-   guardar_excel(tabla_inventario)
-   messagebox.showinfo("Guardado", "Excel creado correctamente")
-
-
-def limpiar_campos():
-   entrada_codigo.delete(0, tk.END)
-   entrada_producto.delete(0, tk.END)
-   entrada_animal.delete(0, tk.END)
-   entrada_categoria.delete(0, tk.END)
-   entrada_stock.delete(0, tk.END)
-   entrada_precio.delete(0, tk.END)
-
-#Tkinter
-ventana = tk.Tk()
-ventana.title("Inventario Tienda Animal")
-ventana.geometry("400x400")
-
-tk.Label(ventana, text="Codigo").pack()
-entrada_codigo = tk.Entry(ventana)
-entrada_codigo.pack()
-
-tk.Label(ventana, text="Producto").pack()
-entrada_producto = tk.Entry(ventana)
-entrada_producto.pack()
-
-tk.Label(ventana, text="Animal").pack()
-entrada_animal = tk.Entry(ventana)
-entrada_animal.pack()
-
-tk.Label(ventana, text="Categoria").pack()
-entrada_categoria = tk.Entry(ventana)
-entrada_categoria.pack()
-
-tk.Label(ventana, text="Stock").pack()
-entrada_stock = tk.Entry(ventana)
-entrada_stock.pack()
-
-tk.Label(ventana, text="Precio").pack()
-entrada_precio = tk.Entry(ventana)
-entrada_precio.pack()
-
-tk.Button(
-   ventana,
-   text="Añadir producto",
-   command=agregar_producto
-).pack(pady=5)
-
-
-tk.Button(
-   ventana,
-   text="Guardar en Excel",
-   command=guardar_inventario
-).pack(pady=5
-      )
-
-
-ventana.mainloop()
-
+if __name__ == "__main__":
+    abrir_menu()

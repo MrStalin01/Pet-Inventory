@@ -123,8 +123,55 @@ def abrir_agregar():
 
 
     def abrir_eliminar():
-        pass
-    def abrir_inventario():
+        global tabla_inventario
+
+        ventana = tk.Tk()
+        ventana.title("Eliminar Producto")
+        ventana.geometry("380x320")
+        ventana.resizable(False, False)
+
+        tk.Label(ventana, text="Eliminar Producto", font=("Arial", 13, "bold")).pack(pady=8)
+        tk.Label(ventana, text="Selecciona el producto a eliminar:").pack()
+
+        lista = tk.Listbox(ventana, width=45, height=10)
+        lista.pack(padx=10, pady=5)
+
+        def refrescar_lista():
+            lista.delete(0, tk.END)
+            if tabla_inventario.empty:
+                lista.insert(tk.END, "(No hay productos en el inventario)")
+            else:
+                for _, fila in tabla_inventario.iterrows():
+                    lista.insert(tk.END, f"{fila['Codigo']}  |  {fila['Producto']}  |  {fila['Animal']}")
+
+        refrescar_lista()
+
+        def confirmar_eliminar():
+            global tabla_inventario
+            seleccion = lista.curselection()
+            if not seleccion:
+                messagebox.showwarning("Aviso", "Selecciona un producto primero", parent=ventana)
+                return
+            indice = seleccion[0]
+            nombre = tabla_inventario.iloc[indice]["Producto"]
+            if messagebox.askyesno("Confirmar", f"¿Eliminar '{nombre}'?", parent=ventana):
+                tabla_inventario = tabla_inventario.drop(index=indice).reset_index(drop=True)
+                guardar_excel(tabla_inventario)
+                refrescar_lista()
+                messagebox.showinfo("Eliminado", f"'{nombre}' eliminado y Excel actualizado", parent=ventana)
+
+        frame_botones = tk.Frame(ventana)
+        frame_botones.pack(pady=5)
+
+        tk.Button(frame_botones, text="Eliminar",
+                  command=confirmar_eliminar).pack(side="left", padx=5)
+        tk.Button(frame_botones, text="← Menú", width=12,
+                  command=lambda: [ventana.destroy(), abrir_menu()]).pack(side="left", padx=5)
+
+        ventana.mainloop()
+
+
+def abrir_inventario():
         pass
 
 if __name__ == "__main__":

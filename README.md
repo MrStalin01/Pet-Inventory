@@ -24,11 +24,55 @@ La clase principal, aqui donde abririamos nuestro programa usando tkinter y pand
 
 Lo primero una función para abrir_menu() el Inventory y poder seleccionar la opcion de Agregar, eliminar y ver/editar. 
 
-abrir_agregar():
+## Función `abrir_agregar()`
 Global permite modificar la tabla y se diseña la nueva ventana.
 Campos de texto: "Codigo", "Producto", "Precio", "Stock" y se guarda en datos {}.
 Desplegables: "animal" y "categoria" se guarda en su propia variable.
 Todo es verificado por si hay un campo sin rellenar o mal introducido, si pasa la validación se guarda en Excel y limpia los campos.
+
+## Función `abrir_eliminar()`
+<img src="./Screenshots/Eliminar.png" width=40% style="margin-right: 20px;">
+<img src="./Screenshots/ConfirmarEliminar.png" width=30% style="margin-right: 20px;">
+
+Se encarga de gestionar la eliminación de productos del inventario mediante una interfaz gráfica desarrollada con **Tkinter**.
+
+Una vez ejecutado:
+
+- Se abre una nueva ventana titulada "Eliminar Producto".
+- Se utiliza un Listbox para mostrar todos los productos almacenados en el DataFrame `tabla_inventario`.
+- DataFrame: Estructura de datos de la libreria pandas que funciona como una tabla.
+
+Cada elemento del Listbox representa una fila del inventario, mostrando su código, nombre del producto y tipo de animal.
+
+
+### Función `refrescar_lista()`
+
+Esta función se encarga de mantener actualizada la tabla de productos.
+
+Su funcionamiento:
+
+- Limpia los elementos actuales del Listbox.
+- Recorre el DataFrame utilizando `iterrows()`.
+- Refresca todos los productos en la lista una vez manipulados.
+- Se ejecuta después de eliminar un producto
+
+
+### Función  `confirmar_eliminar()`
+
+Esta función se ejecuta cuando el usuario pulsa el botón **Eliminar**.
+
+Su proceso es el siguiente:
+
+1. Comprueba si el usuario ha seleccionado un producto.
+2. Obtiene el índice correspondiente a la fila seleccionada.
+3. Muestra una ventana de confirmación para evitar accidentes.
+4. Si el usuario confirma:
+   - Elimina la fila del DataFrame utilizando `drop()`.
+   - Reorganiza los índices con `reset_index()` para mantener la coherencia.
+   - Guarda los cambios en el archivo Excel.
+   - Actualiza la lista visual ejecutando `refrescar_lista()`.
+
+De esta forma se garantiza que la eliminación afecta tanto a la interfaz gráfica como al almacenamiento permanente del inventario.
 
 # Dependecias ⚙️
 -         pip install pandas openpyxl

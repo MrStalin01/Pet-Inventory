@@ -3,7 +3,7 @@ from tkinter import messagebox, ttk
 import pandas as pd
 import os
 
-from Productos import validar_producto
+from Productos import validar_producto, Animales, Categorias
 from excel import guardar_excel, cargar_excel, COLUMNAS, ARCHIVO_EXCEL
 
 tabla_inventario = cargar_excel()
@@ -48,19 +48,40 @@ def abrir_agregar():
     tk.Label(ventana, text="Agregar Producto", font=("Arial", 13, "bold")).pack(pady=8)
 
     entradas = {}
-    for campo in COLUMNAS:
+    for campo in ["Codigo", "Producto", "Precio"]:
         tk.Label(ventana, text=campo).pack()
         entry = tk.Entry(ventana, width=28)
         entry.pack(pady=1)
         entradas[campo] = entry
+
+    tk.Label(ventana, text="Animal").pack()
+    animalDesplegable = ttk.Combobox(
+        ventana, width=26, state="readonly",
+        values=[a.capitalize() for a in Animales]
+    )
+    animalDesplegable.pack(pady=1)
+
+    tk.Label(ventana, text="Categoria").pack()
+    categoriaDesplegable = ttk.Combobox(
+        ventana, width=26, state="readonly",
+        values=[c.capitalize() for c in Categorias]
+    )
+    categoriaDesplegable.pack(pady=1)
 
     def confirmar():
         global tabla_inventario
 
         codigo    = entradas["Codigo"].get().strip()
         producto  = entradas["Producto"].get().strip()
-        animal    = entradas["Animal"].get().strip()
-        categoria = entradas["Categoria"].get().strip()
+        animal    = animalDesplegable.get().lower()
+        categoria = categoriaDesplegable.get().lower()
+
+        if not animal:
+            messagebox.showwarning("El Animal", "Selecciona un animal", parent=ventana)
+            return
+        if not producto:
+            messagebox.showwarning("El Producto", "Selecciona un producto", parent=ventana)
+            return
 
         try:
             stock  = int(entradas["Stock"].get())
@@ -85,7 +106,7 @@ def abrir_agregar():
             tabla_inventario = tabla_inventario.iloc[:-1].reset_index(drop=True)
             messagebox.showwarning("Error de validación", "\n".join(errores), parent=ventana)
         else:
-            guardar_excel(tabla_inventario)  # ← guarda automáticamente
+            guardar_excel(tabla_inventario)
             messagebox.showinfo("Correcto", f"'{producto}' añadido y guardado en Excel", parent=ventana)
             for e in entradas.values():
                 e.delete(0, tk.END)

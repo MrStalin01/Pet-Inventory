@@ -17,12 +17,15 @@ def validar_producto(tabla_inventario):
     if(tabla_inventario["Precio"] <= 0).any():
         errores.append("El precio no puede ser negativo")
 
+    animales_lower = [a.lower() for a in Animales]
+    categorias_lower = [c.lower() for c in Categorias]
+
     for animal in tabla_inventario["Animal"]:
-        if animal not in Animales:
-            errores.append(f"Animal no valido: {animal} (Perro, Gato, Pajaro, Roedor, Pez, Pez, Reptil")
+        if str(animal).lower() not in animales_lower:
+            errores.append(f"Animal no válido: {animal}. Válidos: {', '.join(Animales)}")
 
     for categoria in tabla_inventario["Categoria"]:
-        if categoria not in Categorias:
-            errores.append(f"Categoría inválida: {categoria} (Alimentacion, Jueguetes, Higiene, Accesorios, Salud")
+        if str(categoria).lower() not in categorias_lower:
+            errores.append(f"Categoría inválida: {categoria}. Válidas: {', '.join(Categorias)}")
 
     return errores

@@ -2,6 +2,9 @@
 -         Excel con PANDAS que valide la estructura y los datos, se introducen con Tkinter
 La idea principal es crear una simulación de inventario para una tienda online con stock para la aplicación de PetMatch, un programa el cual se pueda organizar el inventario de la tienda y poder actualizar, añadir o borrar productos del stock con Pandas y Tkinter usando excel como base de datos.
 
+<img src="./screenshots/Añadir.png" width=29% style="margin-right: 20px;">
+<img src="./screenshots/menu.png" width=29% style="margin-right: 20px;">
+
 # Excel.py
 
 La clase la cual servira para desde ahí se pueda cargar y guardar en excel usando pandas todos los datos que introducimos desde la main, con un control de errores de códigos (ID de producto) duplicados o posibles errores de carga como “PermissionError” que ocurre cuando tenemos Excel abierto. 

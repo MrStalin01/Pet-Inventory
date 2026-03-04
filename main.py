@@ -172,7 +172,26 @@ def abrir_eliminar():
 
 
 def abrir_inventario():
-        pass
+    global tabla_inventario
+
+    ventana = tk.Tk()
+    ventana.title("Ver / Editar Inventario")
+    ventana.geometry("700x450")
+    ventana.resizable(True, True)
+
+    tk.Label(ventana, text="Inventario", font=("Arial", 13, "bold")).pack(pady=6)
+
+    # Tabla (TreeView)
+    tree = ttk.Treeview(ventana, columns=COLUMNAS, show="headings", height=12)
+    for col in COLUMNAS:
+        tree.heading(col, text=col)
+        tree.column(col, width=100, anchor="center")
+
+    scrollbar = ttk.Scrollbar(ventana, orient="vertical", command=tree.yview)
+    tree.configure(yscrollcommand=scrollbar.set)
+    tree.pack(side="left", fill="both", expand=True, padx=(10, 0), pady=5)
+    scrollbar.pack(side="left", fill="y", pady=5)
+
 
 if __name__ == "__main__":
     abrir_menu()

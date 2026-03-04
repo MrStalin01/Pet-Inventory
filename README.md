@@ -1,0 +1,11 @@
+# Pet-Inventory 📦
+-         Excel con PANDAS que valide la estructura y los datos, se introducen con Tkinter
+La idea principal es crear una simulación de inventario para una tienda online con stock para la aplicación de PetMatch, un programa el cual se pueda organizar el inventario de la tienda y poder actualizar, añadir o borrar productos del stock con Pandas y Tkinter usando excel como base de datos.
+
+Creamos un excel.py el cual servira para desde ahí se pueda cargar y guardar en excel todos los datos que introducimos desde la main, con un control de errores de códigos (ID de producto) duplicados o posibles errores de carga como “PermissionError” que ocurre cuando tenemos Excel abierto. 
+El index=False es para que se vea mejor así evitando añadir columnas extras que no se necesitan.
+
+Al momento de carga verifica si existe el archivo excel, si no existe lee el excel y hace una comprobación por cada columna que debería tener la tabla, si no existe la crea vacía. Esto se hace por si alguien borró una columna del Excel manualmente.
+
+
+Después en productos.py es la clase la cual creamos cada categoria y animales permitidos y su validación.

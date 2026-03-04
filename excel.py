@@ -23,11 +23,11 @@ def guardar_excel(tabla_inventario):
 def cargar_excel():
     if os.path.exists(ARCHIVO_EXCEL):
         try:
-            df = pd.read_excel(ARCHIVO_EXCEL)
+            tabla = pd.read_excel(ARCHIVO_EXCEL)
             for col in COLUMNAS:
-                if col not in df.columns:
-                    df[col] = ""
-            return df[COLUMNAS]
+                if col not in tabla.columns:
+                    tabla[col] = ""
+            return tabla[COLUMNAS]
         except Exception as e:
             print(f"Error al cargar: {e}")
 

@@ -47,12 +47,12 @@ def abrir_agregar():
 
     tk.Label(ventana, text="Agregar Producto", font=("Arial", 13, "bold")).pack(pady=8)
 
-    entradas = {}
-    for campo in ["Codigo", "Producto", "Precio"]:
+    datos = {}
+    for campo in ["Codigo", "Producto", "Precio", "Stock"]:
         tk.Label(ventana, text=campo).pack()
         entry = tk.Entry(ventana, width=28)
         entry.pack(pady=1)
-        entradas[campo] = entry
+        datos[campo] = entry
 
     tk.Label(ventana, text="Animal").pack()
     animalDesplegable = ttk.Combobox(
@@ -71,8 +71,8 @@ def abrir_agregar():
     def confirmar():
         global tabla_inventario
 
-        codigo    = entradas["Codigo"].get().strip()
-        producto  = entradas["Producto"].get().strip()
+        codigo    = datos["Codigo"].get().strip()
+        producto  = datos["Producto"].get().strip()
         animal    = animalDesplegable.get().lower()
         categoria = categoriaDesplegable.get().lower()
 
@@ -84,8 +84,8 @@ def abrir_agregar():
             return
 
         try:
-            stock  = int(entradas["Stock"].get())
-            precio = float(entradas["Precio"].get())
+            stock  = int(datos["Stock"].get())
+            precio = float(datos["Precio"].get())
         except ValueError:
             messagebox.showerror("Error", "Stock debe ser entero y Precio decimal", parent=ventana)
             return
@@ -108,7 +108,7 @@ def abrir_agregar():
         else:
             guardar_excel(tabla_inventario)
             messagebox.showinfo("Correcto", f"'{producto}' añadido y guardado en Excel", parent=ventana)
-            for e in entradas.values():
+            for e in datos.values():
                 e.delete(0, tk.END)
 
     frame_botones = tk.Frame(ventana)

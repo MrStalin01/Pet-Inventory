@@ -172,26 +172,110 @@ def abrir_eliminar():
 
 
 def abrir_inventario():
-    global tabla_inventario
+   global tabla_inventario
 
-    ventana = tk.Tk()
-    ventana.title("Ver / Editar Inventario")
-    ventana.geometry("700x450")
-    ventana.resizable(True, True)
 
-    tk.Label(ventana, text="Inventario", font=("Arial", 13, "bold")).pack(pady=6)
+   ventana = tk.Tk()
+   ventana.title("Ver / Editar Inventario")
+   ventana.geometry("700x450")
+   ventana.resizable(True, True)
 
-    # Tabla (TreeView)
-    tree = ttk.Treeview(ventana, columns=COLUMNAS, show="headings", height=12)
-    for col in COLUMNAS:
-        tree.heading(col, text=col)
-        tree.column(col, width=100, anchor="center")
 
-    scrollbar = ttk.Scrollbar(ventana, orient="vertical", command=tree.yview)
-    tree.configure(yscrollcommand=scrollbar.set)
-    tree.pack(side="left", fill="both", expand=True, padx=(10, 0), pady=5)
-    scrollbar.pack(side="left", fill="y", pady=5)
+   tk.Label(ventana, text="Inventario", font=("Arial", 13, "bold")).pack(pady=6)
 
+
+   tree = ttk.Treeview(ventana, columns=COLUMNAS, show="headings", height=12)
+   for col in COLUMNAS:
+       tree.heading(col, text=col)
+       tree.column(col, width=100, anchor="center")
+
+
+   scrollbar = ttk.Scrollbar(ventana, orient="vertical", command=tree.yview)
+   tree.configure(yscrollcommand=scrollbar.set)
+   tree.pack(side="left", fill="both", expand=True, padx=(10, 0), pady=5)
+   scrollbar.pack(side="left", fill="y", pady=5)
+
+
+   def refrescar_tabla():
+       tree.delete(*tree.get_children())
+       for _, fila in tabla_inventario.iterrows():
+           tree.insert("", tk.END, values=list(fila))
+
+
+   refrescar_tabla()
+
+
+   panel = tk.Frame(ventana)
+   panel.pack(side="left", fill="y", padx=10, pady=5)
+
+
+   tk.Label(panel, text="Editar seleccionado", font=("Arial", 10, "bold")).pack(pady=4)
+
+
+   entradas_edit = {}
+   for col in COLUMNAS:
+       tk.Label(panel, text=col, anchor="w").pack(fill="x")
+       e = tk.Entry(panel, width=16)
+       e.pack(pady=1)
+       entradas_edit[col] = e
+
+
+   def cargar_en_editor(event):
+       seleccion = tree.selection()
+       if not seleccion:
+           return
+       valores = tree.item(seleccion[0])["values"]
+       for col, val in zip(COLUMNAS, valores):
+           entradas_edit[col].delete(0, tk.END)
+           entradas_edit[col].insert(0, str(val))
+
+
+   tree.bind("<<TreeviewSelect>>", cargar_en_editor)
+
+
+   def guardar_edicion():
+       global tabla_inventario
+       seleccion = tree.selection()
+       if not seleccion:
+           messagebox.showwarning("Aviso", "Selecciona una fila para editar", parent=ventana)
+           return
+
+
+       indice = tree.index(seleccion[0])
+
+
+       try:
+           stock  = int(entradas_edit["Stock"].get())
+           precio = float(entradas_edit["Precio"].get())
+       except ValueError:
+           messagebox.showerror("Error", "Stock debe ser entero y Precio decimal", parent=ventana)
+           return
+
+
+       tabla_inventario.at[indice, "Codigo"] = entradas_edit["Codigo"].get().strip()
+       tabla_inventario.at[indice, "Producto"] = entradas_edit["Producto"].get().strip()
+       tabla_inventario.at[indice, "Animal"] = entradas_edit["Animal"].get().strip()
+       tabla_inventario.at[indice, "Categoria"] = entradas_edit["Categoria"].get().strip()
+       tabla_inventario.at[indice, "Stock"] = stock
+       tabla_inventario.at[indice, "Precio"] = precio
+
+
+       errores = validar_producto(tabla_inventario)
+       if errores:
+           messagebox.showwarning("Error de validación", "\n".join(errores), parent=ventana)
+       else:
+           guardar_excel(tabla_inventario)  # ← guarda automáticamente
+           messagebox.showinfo("Guardado", "Cambios guardados en Excel", parent=ventana)
+           refrescar_tabla()
+
+
+   tk.Button(panel, text="Guardar cambios",
+             command=guardar_edicion).pack(pady=6)
+   tk.Button(panel, text="← Menú",
+             command=lambda: [ventana.destroy(), abrir_menu()]).pack(pady=6)
+
+
+   ventana.mainloop()
 
 if __name__ == "__main__":
     abrir_menu()

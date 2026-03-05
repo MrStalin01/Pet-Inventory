@@ -74,6 +74,65 @@ Su proceso es el siguiente:
 
 De esta forma se garantiza que la eliminación afecta tanto a la interfaz gráfica como al almacenamiento permanente del inventario.
 
+<img src="./Screenshots/Editar.png" width=29% style="margin-right: 20px;">
+
+Aquí se encuentra el botón de editar el inventario
+
+tk.Button(
+    ventana, text="Ver / Editar Inventario",
+    command=lambda: [ventana.destroy(), abrir_inventario()]
+).pack(pady=5)
+
+Al hacer clic, se cierra la ventana actual y se abre la ventana del inventario.
+
+Refrescamos y checkeamos que en la tabla estén las filas necesarias:
+
+def refrescar_tabla():
+    tree.delete(*tree.get_children())
+    for _, fila in tabla_inventario.iterrows():
+        tree.insert("", tk.END, values=list(fila))
+
+refrescar_tabla()
+
+Esto limpia la tabla y la llena con los datos actuales del inventario.
+
+Creamos un panel lateral para editar la fila seleccionada:
+
+panel = tk.Frame(ventana)
+panel.pack(side="left", fill="y", padx=10, pady=5)
+
+tk.Label(panel, text="Editar seleccionado", font=("Arial", 10, "bold")).pack(pady=4)
+
+entradas_edit = {}
+for col in COLUMNAS:
+    tk.Label(panel, text=col, anchor="w").pack(fill="x")
+    e = tk.Entry(panel, width=16)
+    e.pack(pady=1)
+    entradas_edit[col] = e
+
+Cada columna tiene un Entry donde se puede modificar su valor.
+
+Abrimos la ventana con toda la tabla así:
+
+def abrir_inventario():
+    global tabla_inventario
+    ventana = tk.Tk()
+    ventana.title("Ver / Editar Inventario")
+    ventana.geometry("700x450")
+    ventana.resizable(True, True)
+
+Y guardamos la edición con esto:
+
+def guardar_edicion():
+    global tabla_inventario
+    seleccion = tree.selection()
+    if not seleccion:
+        messagebox.showwarning("Aviso", "Selecciona una fila para editar", parent=ventana)
+        return
+
+Primero revisa que se haya seleccionado una fila, y luego se actualizarían los valores y se refresca la tabla para que se vean los cambios.
+
+
 # Dependecias ⚙️
 -         pip install pandas openpyxl
 
